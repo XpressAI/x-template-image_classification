@@ -710,5 +710,5 @@ class PredictTestData(Component):
             plt.imshow(image_batch[i].astype("uint8"))
             plt.title(class_names[predictions[i]])
             plt.axis("off")
-            plt.show()
+        plt.show()
         self.done = True
