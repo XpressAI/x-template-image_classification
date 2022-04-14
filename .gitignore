@@ -139,3 +139,6 @@ dmypy.json
 
 #dataset 
 cats_and_dogs_filtered/
+
+#xircuits
+.xircuits/
