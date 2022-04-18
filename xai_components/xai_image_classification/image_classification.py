@@ -565,8 +565,10 @@ class EvaluateModel(Component):
         testing_dataset = self.testing_dataset.value 
         if testing_dataset is True:
             dataset = ctx['testing_dataset']
+            print("Evaluate Model Using Testing Dataset")
         else:
             dataset = ctx['validation_dataset']
+            print("Evaluate Model Using Validation Dataset")
 
         loss0, accuracy0 = model.evaluate(dataset)
         print("loss: {:.2f}".format(loss0))
