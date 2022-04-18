@@ -52,14 +52,16 @@ class DownloadDataset(Component):
                                                             image_size=img_size)
 
         validation_dataset = tf.keras.utils.image_dataset_from_directory(validation_dir,
-                                                                 shuffle=True,
-                                                                 batch_size=batch_size,
-                                                                 image_size=img_size)
-
+                                                            shuffle=True,
+                                                            batch_size=batch_size,
+                                                            image_size=img_size)
+  
         self.training_dataset.value = train_dataset
         self.validation_dataset.value = validation_dataset
         ctx.update({'class_names':train_dataset.class_names})
+
         
+
         self.done = True
 
 # ---------------------------------------------------------------------------- #
@@ -99,6 +101,7 @@ class CreateTestData(Component):
     training_dataset:InArg[any]
     validation_dataset:InArg[any]
     test_percentage:InArg[float]
+    count_class:InArg[bool]
 
     training_dataset:OutArg[any]
     validation_dataset:OutArg[any]
@@ -110,6 +113,7 @@ class CreateTestData(Component):
         self.training_dataset = InArg(None)
         self.validation_dataset = InArg(None)
         self.test_percentage = InArg(0)
+        self.count_class = InArg(False)
 
         self.validation_dataset = OutArg(None)
         self.test_dataset = OutArg(None)
@@ -119,6 +123,7 @@ class CreateTestData(Component):
         training_dataset = self.training_dataset.value
         validation_dataset = self.validation_dataset.value 
         test_percentage = self.test_percentage.value
+        count_class = self.count_class.value
 
         if test_percentage > 100 :
             sys.exit("test_percentage value should be a float number between 0 -> 100%")
@@ -129,8 +134,41 @@ class CreateTestData(Component):
         test_dataset = validation_dataset.take(batches // split)
         validation_dataset = validation_dataset.skip(batches // split)
 
-        print('Number of validation batches: %d' % tf.data.experimental.cardinality(validation_dataset))
-        print('Number of test batches: %d' % tf.data.experimental.cardinality(test_dataset))
+        print('Number of Training batches: %d' % tf.data.experimental.cardinality(training_dataset))
+        print('Number of Validation batches: %d' % tf.data.experimental.cardinality(validation_dataset))
+        print('Number of Testing batches: %d' % tf.data.experimental.cardinality(test_dataset))
+
+        class_names = training_dataset.class_names
+
+        if count_class is True:
+            
+            classes_counter = []
+            print("\nCounting Training Dataset Classes :")
+            for images, labels in iter(training_dataset):
+                for j in range(len(labels)):
+                    classes_counter.append(class_names[labels[j]])
+        
+            for w in range(len(class_names)):
+                print(class_names[w]+' : ',classes_counter.count(class_names[w]))
+            
+            classes_counter = []
+            print("Counting Validation Dataset Classes :")
+            for images, labels in iter(validation_dataset):
+                for j in range(len(labels)):
+                    classes_counter.append(class_names[labels[j]])
+        
+            for w in range(len(class_names)):
+                print(class_names[w]+' : ',classes_counter.count(class_names[w]))
+
+            classes_counter = []
+            print("Counting Testing Dataset Classes :")
+            for images, labels in iter(test_dataset):
+                for j in range(len(labels)):
+                    classes_counter.append(class_names[labels[j]])
+        
+            for w in range(len(class_names)):
+                print(class_names[w]+' : ',classes_counter.count(class_names[w]))
+
 
         self.training_dataset.value = training_dataset
         self.validation_dataset.value = validation_dataset
@@ -336,7 +374,6 @@ class LoadTFModel(Component):
                 preprocess = 'preprocess_input'
                 preprocess_input = getattr(tf.keras.applications,model_function_name)
                 preprocess_input = getattr(preprocess_input,preprocess)
-                print("processssss",preprocess_input)
                 ctx.update({'preprocess_input':preprocess_input})
 
         except Exception as e:
@@ -394,6 +431,7 @@ class ClassifierHead(Component):
             print(f"prediction layer's Output Shape:{prediction_batch.shape}\n")
 
             self.classifier.value = binary
+            ctx.update({'is_binary':binary})
 
         self.done = True
 
@@ -514,16 +552,25 @@ class CompileModel(Component):
 @xai_component(color='red')
 class EvaluateModel(Component):
     model:InCompArg[any]
+    testing_dataset:InArg[bool]
 
     def __init__(self):
         
         self.done = False
         self.model = InCompArg(None)
+        self.testing_dataset = InArg(False)
 
     def execute(self, ctx) -> None:
-        model = self.model.value 
-        validation_dataset = ctx['validation_dataset']
-        loss0, accuracy0 = model.evaluate(validation_dataset)
+        model = self.model.value
+        testing_dataset = self.testing_dataset.value 
+        if testing_dataset is True:
+            dataset = ctx['testing_dataset']
+            print("Evaluate Model Using Testing Dataset")
+        else:
+            dataset = ctx['validation_dataset']
+            print("Evaluate Model Using Validation Dataset")
+
+        loss0, accuracy0 = model.evaluate(dataset)
         print("loss: {:.2f}".format(loss0))
         print("accuracy: {:.2f}".format(accuracy0))
         self.done = True
@@ -692,14 +739,17 @@ class PredictTestData(Component):
         model = self.model.value
         test_dataset = ctx['testing_dataset']
         class_names = ctx['class_names']
+        binary = ctx['is_binary']
 
         # Retrieve a batch of images from the test set
         image_batch, label_batch = test_dataset.as_numpy_iterator().next()
+        
         predictions = model.predict_on_batch(image_batch).flatten()
 
-        # Apply a sigmoid since our model returns logits
-        predictions = tf.nn.sigmoid(predictions)
-        predictions = tf.where(predictions < 0.5, 0, 1)
+        if binary is True:
+            predictions = tf.where(predictions < 0.5, 0, 1)
+        else:
+            predictions = tf.math.argmax(predictions, axis=-1)
 
         print('Predictions:\n', predictions.numpy())
         print('Labels:\n', label_batch)

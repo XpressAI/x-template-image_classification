@@ -20,6 +20,7 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -146,6 +147,20 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+#zipped file 
+*.zip
+
+#wheel
+*.whl
+
+#models
+*.h5
+
+#dataset 
+cats_and_dogs_filtered/
+
+#xircuits
+.xircuits/
 # pytype static type analyzer
 .pytype/
 
