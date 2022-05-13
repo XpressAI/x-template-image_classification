@@ -1,7 +1,7 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
-  timeout: 600000,
+  timeout: 60000,
   use: {
     // Browser options
     headless: true,
