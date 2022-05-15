@@ -5,7 +5,7 @@ const TARGET_URL = process.env.TARGET_URL ?? 'http://localhost:8888';
 test('Should complete E2E test', async ({
   page,
 }) => {
-  test.slow();
+  test.setTimeout(12000000);
   const logs: string[] = [];
 
   page.on('console', (message) => {
