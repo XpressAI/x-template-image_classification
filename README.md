@@ -1,5 +1,19 @@
 # Xircuits Image Classification Template
 
+## Template Setup
+You will need python 3.9+ to install xircuits. We recommend installing in a virtual environment.
+### Libraries setup
+To install the required libraries Run: 
+```
+$ pip install -r requirements.txt
+```
+### Launch
+To launch Xircuits Run:
+```
+$ xircuits
+```
+More detailed information on installation, setup and features can be found on [Xircuits](https://github.com/XpressAI/xircuits)  
+
 ## Image Classification
 
 In this template, you will able to classify images of different objects by using transfer learning from a pre-trained network.
