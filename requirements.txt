@@ -1,3 +1,4 @@
+xircuits
 tensorflow
 matplotlib
 numpy
