@@ -1,9 +1,7 @@
 name: Run UI E2E Test
 
 on:
-  push:
-    branches: main
-  pull_request:
+  workflow_dispatch:
     branches: "*"
 
 
