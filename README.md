@@ -1,4 +1,4 @@
-# Xircuits Image Classification Template
+# Xircuits Image Classification Project Template
 
 ## Template Setup
 You will need python 3.9+ to install xircuits. We recommend installing in a virtual environment.
