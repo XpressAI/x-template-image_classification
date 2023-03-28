@@ -18,16 +18,8 @@ class DownloadDataset(Component):
     validation_dataset:OutArg[any]
 
     def __init__(self):
-
-        self.done = False
-        self.download_dataset = InCompArg(None)
-        self.url = InArg(None)
-        self.local_dataset_path = InArg(None)
-        self.batch_size = InArg(1)
-        self.img_size = InArg(None)
-
-        self.training_dataset = OutArg(None)
-        self.validation_dataset = OutArg(None)
+        super().__init__()
+        self.batch_size.value = 1
 
     def execute(self, ctx) -> None:
         import os
@@ -71,11 +63,6 @@ class DownloadDataset(Component):
 class ViewData(Component):
     dataset:InArg[any]
 
-    def __init__(self):
-
-        self.done = False
-        self.dataset = InArg(None)
-
     def execute(self, ctx) -> None:
         import matplotlib.pyplot as plt
         dataset = self.dataset.value
@@ -108,16 +95,9 @@ class CreateTestData(Component):
     out_test_dataset:OutArg[any]
 
     def __init__(self):
-        
-        self.done = False
-        self.training_dataset = InArg(None)
-        self.validation_dataset = InArg(None)
-        self.test_percentage = InArg(0)
-        self.count_class = InArg(False)
-
-        self.out_training_dataset = OutArg(None)
-        self.out_validation_dataset = OutArg(None)
-        self.out_test_dataset = OutArg(None)
+        super().__init__()
+        self.test_percentage.value = 0
+        self.count_class.value = False
 
     def execute(self, ctx) -> None:
         import sys
@@ -186,14 +166,6 @@ class DatasetsLoader(Component):
     validation_dataset:InArg[any]
     testing_dataset:InArg[any]
 
-    def __init__(self):
-        
-        self.done = False
-        self.training_dataset = InArg(None)
-        self.validation_dataset = InArg(None)
-        self.testing_dataset = InArg(None)
-
-
     def execute(self, ctx) -> None:
         
         training_dataset = self.training_dataset.value
@@ -220,20 +192,6 @@ class Augmentation(Component):
     random_width:InArg[tuple]
     random_zoom:InArg[tuple]
     show_sample:InArg[bool]
-
-    def __init__(self):
-        
-        self.done = False
-        self.random_contrast = InArg(None)
-        self.random_crop = InArg(None)
-        self.random_flip = InArg(None)
-        self.random_height = InArg(None)
-        self.random_rotation = InArg(None)
-        self.random_translation = InArg(None)
-        self.random_width = InArg(None)
-        self.random_zoom = InArg(None)
-        self.show_sample = InArg(False)
-
 
     def execute(self, ctx) -> None:
         import sys
@@ -330,18 +288,13 @@ class LoadTFModel(Component):
 
 
     def __init__(self):
-        self.done = False
-        self.model_name = InCompArg(None)
-        self.model_function_name=InCompArg(None)
-        self.include_top = InCompArg(True)
-        self.weights = InArg('imagenet')
-        self.input_tensor = InArg(None)
-        self.input_shape = InCompArg(None)
-        self.pooling = InArg(None)
-        self.classes = InArg(1000)
-        self.pre_processing = InArg(True)
-        self.args = InArg({})
-        self.model_summary = InArg(False) 
+        super().__init__()
+        self.include_top.value = True
+        self.weights.value = 'imagenet'
+        self.classes.value = 1000
+        self.pre_processing.value = True
+        self.args.value = {}
+        self.model_summary.value = False
 
 
     def execute(self,ctx) -> None:
@@ -397,13 +350,10 @@ class ClassifierHead(Component):
     classifier:OutArg[bool]
     
     def __init__(self):
-        
-        self.done = False
-        self.binary = InCompArg(False)
-        self.num_classes = InArg(False)
-        self.verbose = InArg(False)
-
-        self.classifier = OutArg(None)
+        super().__init__()
+        self.binary.value = False
+        self.num_classes.value = False
+        self.verbose.value = False
 
     def execute(self, ctx) -> None:
         
@@ -448,11 +398,10 @@ class BuildModel(Component):
 
 
     def __init__(self):
-        self.done = False
-        self.classifier = InArg(None)
-        self.augmentation = InArg(False)
-        self.preprocess_input = InArg(False)
-        self.dropout_rate = InArg(None)
+        super().__init__()
+
+        self.augmentation.value = False
+        self.preprocess_input.value = False
 
     def execute(self, ctx) -> None:
         
@@ -522,14 +471,9 @@ class CompileModel(Component):
     compiled_model:OutArg[any]
 
     def __init__(self):
-        
-        self.done = False
-        self.optimizer = InArg(None)
-        self.loss = InArg(None)
-        self.metrics = InArg('accuracy')
-        self.learning_rate = InArg(0.0001)
-
-        self.compiled_model = OutArg(any)
+        super().__init__()
+        self.metrics.value = ['accuracy']
+        self.learning_rate.value = 0.0001
 
     def execute(self, ctx) -> None:
         
@@ -556,10 +500,8 @@ class EvaluateModel(Component):
     testing_dataset:InArg[bool]
 
     def __init__(self):
-        
-        self.done = False
-        self.model = InCompArg(None)
-        self.testing_dataset = InArg(False)
+        super().__init__()
+        self.testing_dataset.value = False
 
     def execute(self, ctx) -> None:
         model = self.model.value
@@ -583,12 +525,6 @@ class EvaluateModel(Component):
 class FreezeModelLayer(Component):
     freeze_all:InCompArg[bool]
     fine_tune_at:InArg[int]
-
-    def __init__(self):
-        
-        self.done = False
-        self.freeze_all = InCompArg(None)
-        self.fine_tune_at = InArg(None)
 
     def execute(self, ctx) -> None:
         
@@ -617,16 +553,6 @@ class TrainModel(Component):
 
     model:OutArg[any]
     training_history:OutArg[any]
-
-    def __init__(self):
-        
-        self.done = False
-        self.compiled_model = InCompArg(None)
-        self.num_epochs = InArg(None)
-        self.resume_training = InArg(None)
-
-        self.model = OutArg(None)
-        self.training_history = OutArg(None)
 
     def execute(self, ctx) -> None:
         
@@ -664,11 +590,6 @@ class TrainModel(Component):
 @xai_component(color='purple')
 class PlotTrainingMetrics(Component):
     training_history:InArg[any]
-
-    def __init__(self):
-        
-        self.done = False
-        self.training_history = InArg(None)
 
     def execute(self, ctx) -> None:
         import matplotlib.pyplot as plt
@@ -708,11 +629,6 @@ class SaveTFModel(Component):
     model: InArg[any]
     model_name: InArg[str]
 
-    def __init__(self):
-        self.done = False
-        self.model = InArg(None)
-        self.model_name = InArg(None)
-
     def execute(self, ctx) -> None:
         import sys
 
@@ -730,10 +646,6 @@ class SaveTFModel(Component):
 @xai_component(color='crimson')
 class PredictTestData(Component):
     model:InCompArg[any]
-
-    def __init__(self):
-        self.done = False
-        self.model = InCompArg(None)
 
     def execute(self, ctx) -> None:
         import matplotlib.pyplot as plt
