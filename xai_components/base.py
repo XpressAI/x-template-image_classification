@@ -1,5 +1,5 @@
 from argparse import Namespace
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Tuple
 
 T = TypeVar('T')
 
@@ -56,22 +56,39 @@ class ExecutionContext:
 
 
 class BaseComponent:
+
+    def __init__(self):
+        all_ports = self.__annotations__
+        for key, type_arg in all_ports.items():
+            if isinstance(type_arg, InArg[any].__class__):
+                setattr(self, key, InArg.empty())
+            elif isinstance(type_arg, InCompArg[any].__class__):
+                setattr(self, key, InCompArg.empty())
+            elif isinstance(type_arg, OutArg[any].__class__):
+                setattr(self, key, OutArg.empty())
+            elif type_arg == str(self.__class__):
+                setattr(self, key, None)
+
     @classmethod
     def set_execution_context(cls, context: ExecutionContext) -> None:
         cls.execution_context = context
 
-    def execute(self) -> None:
+    def execute(self, ctx) -> None:
         pass
 
-    def do(self):
+    def do(self, ctx) -> Tuple[bool, 'BaseComponent']:
         pass
 
 
 class Component(BaseComponent):
     next: BaseComponent
-    done: False
+    done: bool
 
-    def do(self, ctx) -> BaseComponent:
+    def __init__(self):
+        super().__init__()
+        self.done = False
+
+    def do(self, ctx) -> Tuple[bool, BaseComponent]:
         print(f"\nExecuting: {self.__class__.__name__}")
         self.execute(ctx)
 
@@ -81,32 +98,17 @@ class Component(BaseComponent):
         return "<h1>Component</h1>"
 
 
-class BranchComponent(BaseComponent):
-    when_true: BaseComponent
-    when_false: BaseComponent
-
-    condition: InArg[bool]
-
-    def do(self, ctx) -> BaseComponent:
-        if self.condition.value:
-            return self.when_true
-        else:
-            return self.when_false
-
-
-@xai_component(type="if")
-class LoopComponent(Component):
-    body: Component
-
-    condition: InArg[bool]
-
-    def do(self, ctx) -> BaseComponent:
-        while self.condition.value:
-            next_body = self.body.do(ctx)
-            while next_body:
-                next_body = next_body.do(ctx)
-            return self
-        return self.next
+class SubGraphExecutor:
+    
+    def __init__(self, component):
+        self.comp = component
+        
+    def do(self, ctx):
+        comp = self.comp
+        
+        while comp is not None:
+            is_done, comp = comp.do(ctx)
+        return is_done, None
 
 
 def execute_graph(args: Namespace, start: BaseComponent, ctx) -> None:

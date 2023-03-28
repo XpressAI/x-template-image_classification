@@ -103,9 +103,9 @@ class CreateTestData(Component):
     test_percentage:InArg[float]
     count_class:InArg[bool]
 
-    training_dataset:OutArg[any]
-    validation_dataset:OutArg[any]
-    test_dataset:OutArg[any]
+    out_training_dataset:OutArg[any]
+    out_validation_dataset:OutArg[any]
+    out_test_dataset:OutArg[any]
 
     def __init__(self):
         
@@ -115,8 +115,9 @@ class CreateTestData(Component):
         self.test_percentage = InArg(0)
         self.count_class = InArg(False)
 
-        self.validation_dataset = OutArg(None)
-        self.test_dataset = OutArg(None)
+        self.out_training_dataset = OutArg(None)
+        self.out_validation_dataset = OutArg(None)
+        self.out_test_dataset = OutArg(None)
 
     def execute(self, ctx) -> None:
         import sys
@@ -170,9 +171,9 @@ class CreateTestData(Component):
                 print(class_names[w]+' : ',classes_counter.count(class_names[w]))
 
 
-        self.training_dataset.value = training_dataset
-        self.validation_dataset.value = validation_dataset
-        self.test_dataset.value = test_dataset
+        self.out_training_dataset.value = training_dataset
+        self.out_validation_dataset.value = validation_dataset
+        self.out_test_dataset.value = test_dataset
 
         self.done = True
 
