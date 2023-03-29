@@ -2,6 +2,7 @@
 
 ## Template Setup
 You will need python 3.9+ to install xircuits. We recommend installing in a virtual environment.
+
 ### Libraries setup
 To install the required libraries Run: 
 ```
@@ -39,7 +40,7 @@ This template follows the *image classifier* training workflow.
 
 - In this template we download the *cats_and_dogs_filtered* dataset from *Tensorflow* and perform a simple binary image classification model training and fine-tuning.  
 
-![Template](images/template_image_class.gif)
+![Template](https://github.com/XpressAI/x-template-image_classification/blob/main/images/template_image_class.gif)
 
 
 ### Notice:
