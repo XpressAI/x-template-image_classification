@@ -40,7 +40,7 @@ This template follows the *image classifier* training workflow.
 
 - In this template we download the *cats_and_dogs_filtered* dataset from *Tensorflow* and perform a simple binary image classification model training and fine-tuning.  
 
-![Template](https://github.com/XpressAI/x-template-image_classification/blob/main/images/template_image_class.gif)
+![Template](https://github.com/XpressAI/x-template-image_classification/raw/main/images/template_image_class.gif)
 
 
 ### Notice:
