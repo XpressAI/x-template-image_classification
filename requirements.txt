@@ -1,4 +1,4 @@
 xircuits
-tensorflow
-matplotlib
-numpy
+tensorflow==2.18.0
+matplotlib==3.9.2
+numpy==2.0.2
