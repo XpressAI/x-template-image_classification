@@ -1,7 +1,10 @@
 from xai_components.base import InArg, OutArg, InCompArg, Component, xai_component
 from IPython.utils import capture
 import tensorflow as tf
-
+import os
+import requests
+from pathlib import Path
+from zipfile import ZipFile
 
 # ---------------------------------------------------------------------------- #
 #                     Xircuits Component : DownloadDataset                     #
@@ -31,12 +34,17 @@ class DownloadDataset(Component):
 
         if download_dataset is True:
             path_to_zip = tf.keras.utils.get_file(os.path.basename(url), origin=url, extract=True,cache_subdir =os.getcwd())
+            head, tail = os.path.split(path_to_zip)
+            new_tail = tail.replace("_extracted", "")
+            path_to_zip= os.path.join(path_to_zip, new_tail)
             PATH = os.path.join(os.path.dirname(path_to_zip), os.path.basename(os.path.splitext(url)[0]))
+            
+            print(path_to_zip,os.getcwd())
         else:
             PATH = local_dataset_path
 
-        train_dir = os.path.join(PATH, 'train')
-        validation_dir = os.path.join(PATH, 'validation')
+        train_dir = os.path.join(path_to_zip, 'train')
+        validation_dir = os.path.join(path_to_zip, 'validation')
         
         train_dataset = tf.keras.utils.image_dataset_from_directory(train_dir,
                                                             shuffle=True,
@@ -448,9 +456,10 @@ class BuildModel(Component):
         x = prediction_layer(x)
 
         if classifier is True:
-            outputs = tf.nn.sigmoid(x)
+            outputs = tf.keras.layers.Activation('sigmoid')(x)
         else:
-            outputs = tf.nn.softmax(x) 
+            outputs = tf.keras.layers.Activation('softmax')(x)
+ 
 
         model = tf.keras.Model(inputs, outputs)
         model.summary()
@@ -476,18 +485,19 @@ class CompileModel(Component):
         self.learning_rate.value = 0.0001
 
     def execute(self, ctx) -> None:
-        
         model = ctx['built_model']
         optimizer = self.optimizer.value    
         loss = self.loss.value
-        metrics = self.metrics.value
+        metrics = [self.metrics.value] if isinstance(self.metrics.value, str) else self.metrics.value
         learning_rate = self.learning_rate.value
 
-        getattr(model,'compile')(optimizer = getattr(tf.keras.optimizers,optimizer)(learning_rate=learning_rate),
-                                loss = getattr(tf.keras.losses,loss)(),
-                                metrics = metrics )
+        getattr(model,'compile')(
+            optimizer=getattr(tf.keras.optimizers, optimizer)(learning_rate=learning_rate),
+            loss=getattr(tf.keras.losses, loss)(),
+            metrics=metrics
+        )
 
-        print("Model compiled, Number of trainable layers :",len(model.trainable_variables))
+        print("Model compiled, Number of trainable layers:", len(model.trainable_variables))
         self.compiled_model.value = model 
         self.done = True
 
