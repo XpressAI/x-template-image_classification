@@ -1,0 +1,19 @@
+[project]
+name = "xai-image-classification"
+version = "0.1.0"
+description = "Xircuits component library for the image classification template."
+authors = [{ name = "XpressAI", email = "fahreza@xpress.ai" }]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/XpressAI/x-template-image_classification"
+keywords = ["xircuits", "tensorflow", "ML interfaces"]
+
+dependencies = [
+    "tensorflow",
+    "matplotlib",
+    "numpy"
+]
+
+# Xircuits-specific configurations
+[tool.xircuits]
+requirements_path = "requirements.txt"
